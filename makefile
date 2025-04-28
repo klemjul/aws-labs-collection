@@ -24,4 +24,17 @@ vpc-peering-destroy:
 	cd vpc-peering && terraform destroy
 
 
+alb-ecs-fargate-next-init:
+	(cd alb-ecs-fargate-next/next-app && npm install && npm run build) && \
+	(cd alb-ecs-fargate-next/infra && npm install && npm run build) 
+
+alb-ecs-fargate-next-plan:
+	cd alb-ecs-fargate-next/infra && npm run cdk diff
+
+alb-ecs-fargate-next-apply:
+	cd alb-ecs-fargate-next/infra && npm run cdk deploy
+
+alb-ecs-fargate-next-destroy:
+	cd alb-ecs-fargate-next/infra && npm run cdk destroy
+
 
