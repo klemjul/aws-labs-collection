@@ -23,7 +23,7 @@ func handleMessage(ctx context.Context, sqsEvent events.SQSEvent) (events.SQSEve
 	mode := os.Getenv("MODE")
 	var batchItemFailures = make([]events.SQSBatchItemFailure, 0)
 
-	printMessageIDs(sqsEvent)
+	printMessageIDs(sqsEvent, mode)
 	// Simulate processing delay
 	time.Sleep(2 * time.Second)
 
@@ -33,7 +33,7 @@ func handleMessage(ctx context.Context, sqsEvent events.SQSEvent) (events.SQSEve
 		for _, record := range sqsEvent.Records {
 			errorMessages = append(errorMessages, record.MessageId)
 		}
-		return events.SQSEventResponse{}, fmt.Errorf("%v FAILED (THROWING)", errorMessages)
+		return events.SQSEventResponse{}, fmt.Errorf("DEBUG (THROWING) %v", errorMessages)
 	}
 	// https://docs.aws.amazon.com/lambda/latest/dg/services-sqs-errorhandling.html#services-sqs-batchfailurereporting
 	if mode == "PARTIAL_FAILURE" {
@@ -50,7 +50,7 @@ func handleMessage(ctx context.Context, sqsEvent events.SQSEvent) (events.SQSEve
 		// Delete the message(s) from the queue after 3 attempts by marking as successfully processed
 		for _, record := range sqsEvent.Records {
 			if record.Attributes["ApproximateReceiveCount"] == "3" {
-				log.Printf("%s DROPPED (after 3 attempts)", record.MessageId)
+				log.Printf("DEBUG (DROPPED after 3 attempts) %s", record.MessageId)
 				continue
 			}
 			batchItemFailures = append(batchItemFailures, events.SQSBatchItemFailure{
@@ -98,12 +98,12 @@ func handleMessage(ctx context.Context, sqsEvent events.SQSEvent) (events.SQSEve
 	}, nil
 }
 
-func printMessageIDs(sqsEvent events.SQSEvent) {
+func printMessageIDs(sqsEvent events.SQSEvent, mode string) {
 	var messageIDs []string
 	for _, record := range sqsEvent.Records {
 		messageIDs = append(messageIDs, record.MessageId)
 	}
-	log.Printf("%v", messageIDs)
+	log.Printf("DEBUG (RECEIVED) %s %v", mode, messageIDs)
 }
 
 func printBatchItemFailures(batchItemFailures []events.SQSBatchItemFailure) {
@@ -111,5 +111,5 @@ func printBatchItemFailures(batchItemFailures []events.SQSBatchItemFailure) {
 	for _, failure := range batchItemFailures {
 		failedItems = append(failedItems, failure.ItemIdentifier)
 	}
-	log.Printf("%v FAILED", failedItems)
+	log.Printf("DEBUG (FAILED) %v", failedItems)
 }
