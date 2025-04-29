@@ -1,3 +1,3 @@
 # vpc-peering
 
-![](../docs/vpc-peering-archi.png)
+![](./docs/vpc-peering-archi.png)

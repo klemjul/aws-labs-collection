@@ -1,3 +1,3 @@
 # vpc-basic
 
-![](../docs/vpc-basic-archi.png)
+![](./docs/vpc-basic-archi.png)
