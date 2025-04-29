@@ -1,4 +1,5 @@
 **/*.DS_Store
+**/*dist
 
 # Ignore Terraform state files
 *.tfstate
