@@ -37,6 +37,7 @@ alb-ecs-fargate-next-apply:
 alb-ecs-fargate-next-destroy:
 	cd alb-ecs-fargate-next/infra && npm run cdk destroy
 
+
 sqs-message-reprocessing-init:
 	cd sqs-message-reprocessing && terraform init -backend-config=../backend.conf
 
@@ -48,5 +49,18 @@ sqs-message-reprocessing-apply:
 
 sqs-message-reprocessing-destroy:
 	cd sqs-message-reprocessing && terraform destroy
+
+
+sqs-message-regrouping-init:
+	cd sqs-message-regrouping && terraform init -backend-config=../backend.conf
+
+sqs-message-regrouping-plan:
+	cd sqs-message-regrouping && terraform plan
+
+sqs-message-regrouping-apply:
+	cd sqs-message-regrouping && terraform apply
+
+sqs-message-regrouping-destroy:
+	cd sqs-message-regrouping && terraform destroy
 
 
