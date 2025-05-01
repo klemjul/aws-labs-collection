@@ -31,31 +31,34 @@ func init() {
 }
 
 func HandleRequest(ctx context.Context, sqsEvent events.SQSEvent) {
-	fmt.Println(len(sqsEvent.Records))
 	for _, record := range sqsEvent.Records {
 		time.Sleep(1 * time.Second)
-		chatRoomId := record.Attributes["MessageGroupId"]
-		sender := record.MessageAttributes["Sender"]
-		messageId := record.MessageId
-		messageBody := record.Body
-
-		chatMessage := model.ChatMessage{
-			Room:           chatRoomId,
-			MessageId:      messageId,
-			MessageContent: messageBody,
-			Sender:         *sender.StringValue,
-			Status:         "RECEIVED",
-			CreatedAt:      time.Now().Format(time.RFC3339),
-		}
-
-		err := dynamoTableOptions.AddChatMessage(ctx, chatMessage)
+		err := processRecord(ctx, record, dynamoTableOptions)
 
 		if err != nil {
-			panic(err)
+			fmt.Printf("Error processing record %s: %v\n", record.MessageId, err)
 		}
 	}
 }
 
 func main() {
 	lambda.Start(HandleRequest)
+}
+
+func processRecord(ctx context.Context, record events.SQSMessage, options *model.TableOptions) error {
+	chatRoomId := record.Attributes["MessageGroupId"]
+	sender := record.MessageAttributes["Sender"]
+	messageId := record.MessageId
+	messageBody := record.Body
+
+	chatMessage := model.ChatMessage{
+		Room:           chatRoomId,
+		MessageId:      messageId,
+		MessageContent: messageBody,
+		Sender:         *sender.StringValue,
+		Status:         "RECEIVED",
+		CreatedAt:      time.Now().Format("2006-01-02T15:04:05.000Z07:00"),
+	}
+
+	return options.AddChatMessage(ctx, chatMessage)
 }

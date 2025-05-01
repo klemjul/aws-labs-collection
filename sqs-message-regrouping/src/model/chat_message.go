@@ -2,14 +2,14 @@ package model
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go/aws"
 )
+
+var RoomIndex = "RoomIndex"
 
 type ChatMessage struct {
 	Room           string `json:"ChatRoom"`
@@ -18,22 +18,6 @@ type ChatMessage struct {
 	Sender         string `json:"Sender"`
 	Status         string `json:"Status"` // Status can be "SENT" or "RECEIVED"
 	CreatedAt      string `json:"CreatedAt"`
-}
-
-func (msg ChatMessage) GetKey() map[string]types.AttributeValue {
-	title, err := attributevalue.Marshal(msg.Room)
-	if err != nil {
-		panic(err)
-	}
-	messageId, err := attributevalue.Marshal(msg.MessageId)
-	if err != nil {
-		panic(err)
-	}
-	return map[string]types.AttributeValue{"": title, "MessageId": messageId}
-}
-
-func (msg ChatMessage) String() string {
-	return fmt.Sprintf("[%v] %v: %v", msg.Room, msg.Sender, msg.MessageContent)
 }
 
 type TableOptions struct {
@@ -52,21 +36,25 @@ func (tableOpts TableOptions) AddChatMessage(ctx context.Context, message ChatMe
 	return err
 }
 
-func (tableOpts TableOptions) Query(ctx context.Context, room string) ([]ChatMessage, error) {
+func (tableOpts TableOptions) QueryByRoom(ctx context.Context, room string) ([]ChatMessage, error) {
 	var err error
 	var response *dynamodb.QueryOutput
 	var messages []ChatMessage
-	keyEx := expression.Key("room").Equal(expression.Value(room))
+
+	keyEx := expression.Key("Room").Equal(expression.Value(room))
 	expr, err := expression.NewBuilder().WithKeyCondition(keyEx).Build()
 	if err != nil {
 		return messages, err
 	}
+
 	queryPaginator := dynamodb.NewQueryPaginator(tableOpts.DynamoDbClient, &dynamodb.QueryInput{
 		TableName:                 aws.String(tableOpts.TableName),
+		IndexName:                 aws.String(RoomIndex),
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 		KeyConditionExpression:    expr.KeyCondition(),
 	})
+
 	for queryPaginator.HasMorePages() {
 		response, err = queryPaginator.NextPage(ctx)
 		if err != nil {
@@ -79,5 +67,6 @@ func (tableOpts TableOptions) Query(ctx context.Context, room string) ([]ChatMes
 		}
 		messages = append(messages, messagesPage...)
 	}
+
 	return messages, err
 }
