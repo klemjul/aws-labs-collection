@@ -70,7 +70,7 @@ func handler(ctx context.Context, s3Event events.S3Event) error {
 		}
 		log.Printf("CSV Headers: %v", headers)
 
-		// Validate required columnss
+		// Validate required columns
 		pkExists := false
 		skExists := false
 		for _, header := range headers {
