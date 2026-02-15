@@ -64,3 +64,16 @@ sqs-message-regrouping-destroy:
 	cd sqs-message-regrouping && terraform destroy
 
 
+dynamodb-stream-opensearch-init:
+	cd dynamodb-stream-opensearch && terraform init -backend-config=../backend.conf
+
+dynamodb-stream-opensearch-plan:
+	cd dynamodb-stream-opensearch && terraform plan
+
+dynamodb-stream-opensearch-apply:
+	cd dynamodb-stream-opensearch && terraform apply
+
+dynamodb-stream-opensearch-destroy:
+	cd dynamodb-stream-opensearch && terraform destroy
+
+
