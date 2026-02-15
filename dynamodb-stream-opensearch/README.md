@@ -22,3 +22,12 @@ graph LR
     style L2 fill:#D97706
     style S3 fill:#569A31
 ```
+
+## Improvements
+
+More infos: https://github.com/klemjul/aws-labs-collection/pull/7
+
+- [ ] go: Improve error handling in the stream code
+- [ ] tf: Better IAM restrictions
+- [ ] tf: OpenSearch Advanced IAM security
+- [ ] tf: Improve build null_resource trigger condition
